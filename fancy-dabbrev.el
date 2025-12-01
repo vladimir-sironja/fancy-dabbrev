@@ -391,7 +391,9 @@ previous expansion candidate in the menu."
 
 (defun fancy-dabbrev--looking-back-at-expandable ()
   "[internal] Return non-nil if point is after something to expand."
-  (cond ((eq fancy-dabbrev-expansion-context 'after-symbol)
+  (cond ((eq fancy-dabbrev-expansion-context 'at-whitespace)
+         (and (thing-at-point 'symbol) (thing-at-point 'whitespace)))
+   ((eq fancy-dabbrev-expansion-context 'after-symbol)
          (thing-at-point 'symbol))
         ((eq fancy-dabbrev-expansion-context 'after-symbol-or-space)
          (and (not (eq (point) (line-beginning-position)))
