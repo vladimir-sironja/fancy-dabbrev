@@ -321,6 +321,12 @@ represent major or minor modes."
   "Face for the preview.")
 
 ;;;###autoload
+(defun fancy-dabbrev-last-command-did-expand-p ()
+  (interactive)
+  (and (fancy-dabbrev--is-fancy-dabbrev-command last-command)
+       fancy-dabbrev--expansions))
+
+;;;###autoload
 (defun fancy-dabbrev-expand ()
   "Expand previous word \"dynamically\", potentially with a popup menu.
 
@@ -389,11 +395,16 @@ previous expansion candidate in the menu."
       'progress-reporter-done
       ,@body))))
 
+(defun is-at-tail-of-symbol ()
+  (when-let ((bounds (bounds-of-thing-at-point 'symbol)))
+    (= (cdr bounds) (point))))
+
+
 (defun fancy-dabbrev--looking-back-at-expandable ()
   "[internal] Return non-nil if point is after something to expand."
-  (cond ((eq fancy-dabbrev-expansion-context 'at-whitespace)
-         (and (thing-at-point 'symbol) (thing-at-point 'whitespace)))
-   ((eq fancy-dabbrev-expansion-context 'after-symbol)
+  (cond ((eq fancy-dabbrev-expansion-context 'symbol-tail-only)
+         (and (thing-at-point 'symbol) (is-at-tail-of-symbol)))
+        ((eq fancy-dabbrev-expansion-context 'after-symbol)
          (thing-at-point 'symbol))
         ((eq fancy-dabbrev-expansion-context 'after-symbol-or-space)
          (and (not (eq (point) (line-beginning-position)))
